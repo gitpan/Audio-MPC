@@ -41,7 +41,7 @@ sub Audio::MPC::Reader::canseek {
 
 BEGIN {
     # needs to happen early because of the 'use constant's below
-    $VERSION = '0.01';
+    $VERSION = '0.02';
     require XSLoader;
     XSLoader::load('Audio::MPC', $VERSION);
 }
@@ -374,7 +374,7 @@ I am not aware of any outright bugs yet.
 
 A limitation of libmusepack seems to be that you cannot decode from STDIN as it
 is not seekable. It should however be possible to craft your own
-<Audio::MPC::Reader> object which maintains an internal character buffer as
+C<Audio::MPC::Reader> object which maintains an internal character buffer as
 userdata that can be used to fake up a seekable filehandle.
 
 =for readme continue
@@ -409,6 +409,11 @@ Furthermore:
 
 =over 4
 
+=item * 0.02  Mon May 16 13:13:58 CEST 2005
+
+    - check.c had the wrong #include that would prevent
+      installation on most systems
+
 =item * 0.01  Wed May  4 08:30:27 2005
 
     - original version; created by h2xs 1.23 with options
@@ -426,7 +431,7 @@ L<http://www.musepack.net/>
 
 =head1 VERSION
 
-This is version 0.01.
+This is version 0.02.
 
 =head1 AUTHOR
 

@@ -1,4 +1,8 @@
 Revision history for Perl extension Audio::MPC
+    * 0.02 Mon May 16 13:13:58 CEST 2005
+            - check.c had the wrong #include that would prevent
+              installation on most systems
+
     * 0.01 Wed May 4 08:30:27 2005
             - original version; created by h2xs 1.23 with options
                 -b 5.6.0 -n Audio::MPC
