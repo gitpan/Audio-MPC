@@ -41,7 +41,7 @@ sub Audio::MPC::Reader::canseek {
 
 BEGIN {
     # needs to happen early because of the 'use constant's below
-    $VERSION = '0.02';
+    $VERSION = '0.03';
     require XSLoader;
     XSLoader::load('Audio::MPC', $VERSION);
 }
@@ -88,7 +88,7 @@ Audio::MPC - Perl extension for decoding musepack-encoded files
     seek OUT, WAV_HEADER_SIZE, SEEK_SET;    # leave space for wave-header
     
     my $total;
-    while (my $num_bytes = $mpc->decode(my $buf)) {
+    while (my $num_bytes = $mpc->decode(my $buf) > 0) {
 	$total += $num_bytes;
 	print OUT $buf;
     }
@@ -395,7 +395,7 @@ To install this module type the following:
 Due to a subtle but unpleasant interaction between C++ method overloading and
 the perl internals, you need at least perl5.8.0. 
 
-You need a working C++ compiler and libmusepack as avilable from L<http://www.musepack.net/>.
+You need a working C++ compiler and libmusepack as available from L<http://www.musepack.net/>.
 Furthermore:
 
     Test::More
@@ -408,6 +408,14 @@ Furthermore:
 =head1 Revision history for Perl extension Audio::MPC
 
 =over 4
+
+=item * 0.03  Fri Sep 30 08:02:00 CEST 2005
+    
+    - there was a segfault when a file passed by filename
+      could not be opened: fixed
+    - errstr() method now includes $! when appropriate
+    - fixed the SYNOPSIS section of the perldocs:
+      the little script given in there now works
 
 =item * 0.02  Mon May 16 13:13:58 CEST 2005
 
@@ -431,7 +439,7 @@ L<http://www.musepack.net/>
 
 =head1 VERSION
 
-This is version 0.02.
+This is version 0.03.
 
 =head1 AUTHOR
 

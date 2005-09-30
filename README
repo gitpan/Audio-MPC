@@ -11,7 +11,7 @@ SYNOPSIS
         seek OUT, WAV_HEADER_SIZE, SEEK_SET;    # leave space for wave-header
     
         my $total;
-        while (my $num_bytes = $mpc->decode(my $buf)) {
+        while (my $num_bytes = $mpc->decode(my $buf) > 0) {
             $total += $num_bytes;
             print OUT $buf;
         }

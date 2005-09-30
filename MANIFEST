@@ -11,6 +11,7 @@ t/1_audio_mpc.t
 t/2_audio_mpc_reader.t
 t/test.mpc
 t/test.wav
+typemap
 fallback/const-c.inc
 fallback/const-xs.inc
 lib/Audio/MPC.pm

@@ -17,6 +17,7 @@
 
 #include "const-c.inc"
 
+#include <string.h>
 #include <stdio.h>
 #include <musepack/musepack.h>
 
@@ -25,7 +26,7 @@
 #define min(a,b)	((a) <= (b) ? (a) : (b))
 #define to_object(o)	sv_setref_pv(sv_newmortal(), "Audio::MPC::Reader", (void*)o)
 					     
-#define ERR_TMPL_FILE_YES   "Error opening '%s' for reading"
+#define ERR_TMPL_FILE_YES   "Error opening '%s' for reading: %s"
 #define ERR_TMPL_FILE_NO    "Error opening stream"
 #define ERR_TMPL_DECODER    "Error initializing decoder"
 
@@ -269,8 +270,8 @@ public:
 	switch (mcode) {
 	    case ERROR_CODE_FILE:
 		if (mfile) {
-		    New(0, str, strlen(ERR_TMPL_FILE_YES) - 1 + strlen(mfile), char);
-		    sprintf(str, ERR_TMPL_FILE_YES, mfile);
+		    New(0, str, strlen(ERR_TMPL_FILE_YES) + strlen(mfile) + strlen(strerror(errno)) - 1, char);
+		    sprintf(str, ERR_TMPL_FILE_YES, mfile, strerror(errno));
 		} else
 		    str = savepv(ERR_TMPL_FILE_NO);
 		break;
@@ -526,8 +527,14 @@ CODE:
 	if (sv_isobject(ST(1)) and sv_derived_from(ST(1), "Audio::MPC::Reader")) {
 	    mpcdata = (MPC_data*)SvIV(SvRV(ST(1)));
 	}
-	else if (!SvROK(ST(1)))
+	else if (!SvROK(ST(1))) {
 	    file = fopen(fname = SvPV_nolen(ST(1)), "r");
+	    if (!file) {
+		MPC_exception e(ERROR_CODE_FILE, fname);
+		errstr = e.to_string();
+		XSRETURN_UNDEF;
+	    }
+	}
 	else if (glob_ref(ST(1))) {
 	    perlio = IoIFP(sv_2io(ST(1)));
 	    isperlio = true;

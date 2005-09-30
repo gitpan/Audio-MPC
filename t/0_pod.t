@@ -4,6 +4,6 @@ if ($@) {
     exit;
 } 
  
-my @PODS = qw#../blib#;
+my @PODS = qw#blib#;
 
 all_pod_files_ok( all_pod_files(@PODS) );
