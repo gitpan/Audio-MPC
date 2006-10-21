@@ -1,4 +1,11 @@
 Revision history for Perl extension Audio::MPC
+    * 0.04 Sat Oct 21 08:58:56 BST 2006
+            - updated to use libmpcdec which replaces libmusepack
+              (libmusepack is no longer supported)
+            - fixed again the SYNOPSIS section of the perldocs:
+              the little script given in there now works
+              (both by Silvain Cresto <scresto AT gmail DOT com>)
+
     * 0.03 Fri Sep 30 08:02:00 CEST 2005
             - there was a segfault when a file passed by filename
               could not be opened: fixed

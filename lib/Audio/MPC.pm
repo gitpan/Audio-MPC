@@ -41,7 +41,7 @@ sub Audio::MPC::Reader::canseek {
 
 BEGIN {
     # needs to happen early because of the 'use constant's below
-    $VERSION = '0.03';
+    $VERSION = '0.04';
     require XSLoader;
     XSLoader::load('Audio::MPC', $VERSION);
 }
@@ -88,7 +88,7 @@ Audio::MPC - Perl extension for decoding musepack-encoded files
     seek OUT, WAV_HEADER_SIZE, SEEK_SET;    # leave space for wave-header
     
     my $total;
-    while (my $num_bytes = $mpc->decode(my $buf) > 0) {
+    while ((my $num_bytes = $mpc->decode(my $buf)) > 0) {
 	$total += $num_bytes;
 	print OUT $buf;
     }
@@ -96,10 +96,11 @@ Audio::MPC - Perl extension for decoding musepack-encoded files
     # insert wave-header for $total bytes of data
     seek OUT, 0, SEEK_SET;
     print OUT $mpc->wave_header($total);
+    close OUT;
 	
 =head1 DESCRIPTION
 
-This module is a wrapper around libmusepack that allows for decoding 
+This module is a wrapper around libmpcdec that allows for decoding 
 musepack-encoded digital audio. 
 
 Musepack is a lossy audio-compression format optimized for higher bitrates.
@@ -372,7 +373,7 @@ These symbols are exported by default:
 
 I am not aware of any outright bugs yet. 
 
-A limitation of libmusepack seems to be that you cannot decode from STDIN as it
+A limitation of libmpcdec seems to be that you cannot decode from STDIN as it
 is not seekable. It should however be possible to craft your own
 C<Audio::MPC::Reader> object which maintains an internal character buffer as
 userdata that can be used to fake up a seekable filehandle.
@@ -395,7 +396,7 @@ To install this module type the following:
 Due to a subtle but unpleasant interaction between C++ method overloading and
 the perl internals, you need at least perl5.8.0. 
 
-You need a working C++ compiler and libmusepack as available from L<http://www.musepack.net/>.
+You need a working C++ compiler and libmpcdec as available from L<http://www.musepack.net/>.
 Furthermore:
 
     Test::More
@@ -409,8 +410,12 @@ Furthermore:
 
 =over 4
 
+=item * 0.04  Tue Mar  7 11:44:00 CEST 2006
+ 
+    - updated to use libmpcdec who replaces libmusepack
+
 =item * 0.03  Fri Sep 30 08:02:00 CEST 2005
-    
+ 
     - there was a segfault when a file passed by filename
       could not be opened: fixed
     - errstr() method now includes $! when appropriate
@@ -439,15 +444,17 @@ L<http://www.musepack.net/>
 
 =head1 VERSION
 
-This is version 0.03.
+This is version 0.04.
 
 =head1 AUTHOR
 
 Tassilo von Parseval, E<lt>tassilo.von.parseval@rwth-aachen.deE<gt>
 
+libmpcdec support patch by Sylvain Cresto, E<lt>scresto@gmail.comE<gt>
+
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2005 by Tassilo von Parseval
+Copyright (C) 2005, 2006 by Tassilo von Parseval
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.4 or,

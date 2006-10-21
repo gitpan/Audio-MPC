@@ -9,19 +9,19 @@ if (unpack("h*", pack("s", 1)) =~ /01/) {
     $BYTEORDER = "MPC_LITTLE_ENDIAN_MACHINE";
 }
 
-sub have_libmusepack {
+sub have_libmpcdec {
     my $CC = $Config{cc};
     my %args = map { split /\s*=\s*/ } @ARGV;
-    my $LIBS = $args{ LIBS } || '-lmusepack';
+    my $LIBS = $args{ LIBS } || '-lmpcdec';
     my $INC = $args{ INC };
     return 1 if system("$CC $LIBS check.c -o check$Config{obj_ext}") == 0;
     return 0;
 }
 
-if (! have_libmusepack()) {
+if (! have_libmpcdec()) {
     die <<EOD;
 *******************************************
-Couldn't find libmusepack which is required 
+Couldn't find libmpcdec which is required 
 for this module.
 
 To obtain it, get it from

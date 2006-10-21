@@ -19,7 +19,7 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <musepack/musepack.h>
+#include <mpcdec/mpcdec.h>
 
 #define glob_ref(sv)	(SvROK(sv) && SvTYPE(SvRV(sv)) == SVt_PVGV)
 #define sv_to_file(sv)	(PerlIO_exportFILE(IoIFP(sv_2io(sv)), NULL))
@@ -107,7 +107,7 @@ read_impl (void *t, void *ptr, mpc_int32_t size) {
     return min;
 }
     
-static BOOL
+static mpc_bool_t
 seek_impl (void *t, mpc_int32_t offset) {
     int count, didseek;
     SV *ret;
@@ -212,7 +212,7 @@ get_size_impl (void *t) {
     return size;
 }
 
-static BOOL
+static mpc_bool_t
 canseek_impl (void *t) {
     int count, canseek;
     MPC_data *data = (MPC_data*)t;
@@ -286,7 +286,7 @@ public:
     
 class MPC {
 private:
-    mpc_reader		*mr;
+    mpc_reader_file	*mr;
     mpc_streaminfo	msi;
     mpc_decoder		md;
     MPC_SAMPLE_FORMAT	mbuf[MPC_DECODER_BUFFER_LENGTH];
@@ -296,14 +296,14 @@ private:
 public:
     MPC (pTHX_ FILE *file, char *fname = NULL) throw (MPC_exception) {
 	int ec;
-	New(0, mr, 1, mpc_reader);
+	New(0, mr, 1, mpc_reader_file);
 	mfile = file;
 	mpc_reader_setup_file_reader(mr, mfile);
 	mpc_streaminfo_init(&msi);
-	mpc_decoder_setup(&md, mr);
+	mpc_decoder_setup(&md, &mr->reader);
 	mperlio = NULL;
 	mcustomreader = Nullsv;
-	if ((ec = mpc_streaminfo_read(&msi, mr)) != ERROR_CODE_OK) {
+	if ((ec = mpc_streaminfo_read(&msi, &mr->reader)) != ERROR_CODE_OK) {
 	    Safefree(mr);
 	    throw MPC_exception (ec, fname);
 	}
@@ -315,15 +315,15 @@ public:
     MPC (pTHX_ PerlIO *file, char *fname = NULL) throw (MPC_exception) {
 	int ec;
 	
-	New(0, mr, 1, mpc_reader);
+	New(0, mr, 1, mpc_reader_file);
 	mperlio = file;
 	mfile = PerlIO_exportFILE(mperlio, NULL);
 	mpc_reader_setup_file_reader(mr, mfile);
 
 	mpc_streaminfo_init(&msi);
-	mpc_decoder_setup(&md, mr);
+	mpc_decoder_setup(&md, &mr->reader);
 	mcustomreader = Nullsv;
-	if ((ec = mpc_streaminfo_read(&msi, mr)) != ERROR_CODE_OK) {
+	if ((ec = mpc_streaminfo_read(&msi, &mr->reader)) != ERROR_CODE_OK) {
 	    Safefree(mr);
 	    throw MPC_exception (ec, fname);
 	}
@@ -335,21 +335,21 @@ public:
     MPC (pTHX_ MPC_data *mpcdata, SV *obj) throw (MPC_exception) {
 	int ec;
 	
-	New(0, mr, 1, mpc_reader);
-	mr->read = read_impl;
-	mr->seek = seek_impl;
-	mr->tell = tell_impl;
-	mr->get_size = get_size_impl;
-	mr->canseek = canseek_impl;
-	mr->data = mpcdata;
+	New(0, mr, 1, mpc_reader_file);
+	mr->reader.read = read_impl; /* SCRESTO */
+	mr->reader.seek = seek_impl;
+	mr->reader.tell = tell_impl;
+	mr->reader.get_size = get_size_impl;
+	mr->reader.canseek = canseek_impl;
+	mr->reader.data = mpcdata;
 
 	mpc_streaminfo_init(&msi);
-	mpc_decoder_setup(&md, mr);
+	mpc_decoder_setup(&md, &mr->reader);
 
 	/* delayed initialization of 'self' field */
 	mcustomreader = mpcdata->self = obj;
 	
-	if ((ec = mpc_streaminfo_read(&msi, mr)) != ERROR_CODE_OK) {
+	if ((ec = mpc_streaminfo_read(&msi, &mr->reader)) != ERROR_CODE_OK) {
 	    throw MPC_exception (ec);
 	}
 	if (mpc_decoder_initialize(&md, &msi) == FALSE) {

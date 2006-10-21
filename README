@@ -11,7 +11,7 @@ SYNOPSIS
         seek OUT, WAV_HEADER_SIZE, SEEK_SET;    # leave space for wave-header
     
         my $total;
-        while (my $num_bytes = $mpc->decode(my $buf) > 0) {
+        while ((my $num_bytes = $mpc->decode(my $buf)) > 0) {
             $total += $num_bytes;
             print OUT $buf;
         }
@@ -19,12 +19,13 @@ SYNOPSIS
         # insert wave-header for $total bytes of data
         seek OUT, 0, SEEK_SET;
         print OUT $mpc->wave_header($total);
+        close OUT;
         
 DESCRIPTION
-    This module is a wrapper around libmusepack that allows for decoding
+    This module is a wrapper around libmpcdec that allows for decoding
     musepack-encoded digital audio.
 
-    Musepack is a lossy audio-compression format optimized for higher
+    libmpcdec is a lossy audio-compression format optimized for higher
     bitrates. See http://www.musepack.net/ for details.
 
 INSTALLATION
@@ -39,7 +40,7 @@ DEPENDENCIES
     Due to a subtle but unpleasant interaction between C++ method
     overloading and the perl internals, you need at least perl5.8.0.
 
-    You need a working C++ compiler and libmusepack as avilable from
+    You need a working C++ compiler and libmpcdec as avilable from
     http://www.musepack.net/. Furthermore:
 
         Test::More
@@ -49,13 +50,14 @@ SEE ALSO
     http://www.musepack.net/
 
 VERSION
-    This is version 0.02.
+    This is version 0.04.
 
 AUTHOR
     Tassilo von Parseval, <tassilo.von.parseval@rwth-aachen.de>
+    libmpcdec support patch by Sylvain Cresto, <scresto@gmail.com>
 
 COPYRIGHT AND LICENSE
-    Copyright (C) 2005 by Tassilo von Parseval
+    Copyright (C) 2005, 2006 by Tassilo von Parseval
 
     This library is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself, either Perl version 5.8.4 or, at

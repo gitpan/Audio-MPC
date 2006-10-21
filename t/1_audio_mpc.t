@@ -34,6 +34,7 @@ for (@info) {
 
 my $wav = do {
     open my $f, File::Spec->catfile('t', 'test.wav');
+    binmode $f;
     local $/;
     <$f>;
 };
